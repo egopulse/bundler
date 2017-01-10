@@ -19,7 +19,7 @@ require('./readInput')(json => {
   const log = fs.createWriteStream(`${RESULT_DIR}/${vcs_revision}.log`, { flags: 'a' });
 
   exec(`cd ${BASE_DIR} && git pull`);
-  cp('-R', `${BASE_DIR}/.`, `${revisionDir}/`);
+  cp('-R', `${BASE_DIR}/{*,.*}`, `${revisionDir}/`);
   if (exec(`cd ${revisionDir} && git checkout ${vcs_revision}`).code !== 0) {
     log.write('Failed to checkout revision ${vcs_revision}');
     exit(1);
