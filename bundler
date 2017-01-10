@@ -2,7 +2,7 @@
 const fs = require('fs');
 const rootDir = `${__dirname}/..`;
 require('shelljs/global');
-const {BASE_DIR = './pulse', BUILD_DIR='/tmp/build', RESULT_DIR='/tmp/build_results'} = process.env;
+const {BASE_DIR = `${rootDir}/pulse`, BUILD_DIR='/tmp/build', RESULT_DIR='/tmp/build_results'} = process.env;
 mkdir('-p', RESULT_DIR);
 
 if (!which('git') || !which('docker') || !which('java')) {
@@ -19,7 +19,7 @@ require('./readInput')(json => {
   const log = fs.createWriteStream(`${RESULT_DIR}/${vcs_revision}.log`, { flags: 'a' });
 
   exec(`cd ${BASE_DIR} && git pull`);
-  cp('-R', `${BASE_DIR}/.`, revisionDir);
+  cp('-R', `${BASE_DIR}/.`, `${revisionDir}/`);
   if (exec(`cd ${revisionDir} && git checkout ${vcs_revision}`).code !== 0) {
     log.write('Failed to checkout revision ${vcs_revision}');
     exit(1);
