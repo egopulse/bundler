@@ -5,7 +5,7 @@ require('shelljs/global');
 const {BASE_DIR = `${rootDir}/pulse`, BUILD_DIR='/tmp/build', RESULT_DIR='/tmp/build_results'} = process.env;
 mkdir('-p', RESULT_DIR);
 
-const {GITHUB_OAUTH_TOKEN = 'e2b057c8a364316eab25335c8ce398b82ba0fd9b'} = process.env;
+const {GITHUB_OAUTH_TOKEN} = process.env;
 
 if (!which('docker') || !which('java') || !which('curl') || !which('unzip')) {
   echo(`Failed to proceed without necessary application (git | docker | java | curl | unzip)`);
