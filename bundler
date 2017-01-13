@@ -5,8 +5,10 @@ require('shelljs/global');
 const {BASE_DIR = `${rootDir}/pulse`, BUILD_DIR='/tmp/build', RESULT_DIR='/tmp/build_results'} = process.env;
 mkdir('-p', RESULT_DIR);
 
-if (!which('git') || !which('docker') || !which('java')) {
-  echo(`Failed to proceed without necessary application (git | docker | java)`);
+const {GITHUB_OAUTH_TOKEN = 'e2b057c8a364316eab25335c8ce398b82ba0fd9b'} = process.env;
+
+if (!which('docker') || !which('java') || !which('curl') || !which('unzip')) {
+  echo(`Failed to proceed without necessary application (git | docker | java | curl | unzip)`);
   exit(1);
 }
 
@@ -17,18 +19,21 @@ require('./readInput')(json => {
   mkdir('-p', revisionDir);
 
   const log = fs.createWriteStream(`${RESULT_DIR}/${vcs_revision}.log`, { flags: 'a' });
+  const downloadUrl = `${vcs_url}/archive/${vcs_revision}.zip`;
+  console.log(downloadUrl);
 
-  exec(`cd ${BASE_DIR} && git pull`);
-  cp('-R', `${BASE_DIR}/{*,.*}`, `${revisionDir}/`);
-  if (exec(`cd ${revisionDir} && git checkout ${vcs_revision}`).code !== 0) {
-    log.write('Failed to checkout revision ${vcs_revision}');
-    exit(1);
-  };
+  if (GITHUB_OAUTH_TOKEN) {
+    exec(`curl -L -u "${GITHUB_OAUTH_TOKEN}:x-oauth-basic" ${downloadUrl} -o ${revisionDir}/${vcs_revision}`);
+  } else {
+    exec(`curl -L -u -o ${revisionDir}/${vcs_revision}  ${downloadUrl} -o ${revisionDir}/${vcs_revision}`);
+  }
+
+  exec(`unzip ${revisionDir}/${vcs_revision}`);
 
   exec(`${BUILD_DIR}/${vcs_revision}/scripts/build docker:earth`, (code, stdout, stderr) => {
-    log.write('Exit code:', code);
-    log.write('Program output:', stdout);
-    log.write('Program stderr:', stderr);
+    console.log('Exit code:', code);
+    console.log('Program output:', stdout);
+    console.log('Program stderr:', stderr);
   });
 
 });
