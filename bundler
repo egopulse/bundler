@@ -13,7 +13,8 @@ if (!which('docker') || !which('java') || !which('curl') || !which('unzip')) {
 }
 
 require('./readInput')(json => {
-  const {vcs_url, vcs_revision} = json;
+  const {vcs_url, vcs_revision, build_num} = json;
+  const shortCommit = vcs_revision.substring(0, 5);
   const revisionDir = `${BUILD_DIR}/${vcs_revision}`;
   rm('-rf', revisionDir);
   mkdir('-p', revisionDir);
@@ -33,5 +34,5 @@ require('./readInput')(json => {
 
   exec(`unzip ${revisionDir}/${vcs_revision}.zip -d ${revisionDir}`);
 
-  exec(`${BUILD_DIR}/${vcs_revision}/pulse-${vcs_revision}/scripts/autoBuild`);
+  exec(`BUILD_NUM=${build_num} REVISION=${shortCommit} ${BUILD_DIR}/${vcs_revision}/pulse-${vcs_revision}/scripts/autoBuild`);
 });
