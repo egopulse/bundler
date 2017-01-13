@@ -19,16 +19,18 @@ require('./readInput')(json => {
   mkdir('-p', revisionDir);
 
   const log = fs.createWriteStream(`${RESULT_DIR}/${vcs_revision}.log`, { flags: 'a' });
-  const downloadUrl = `${vcs_url}/archive/${vcs_revision}.zip`;
-  console.log(downloadUrl);
+  let downloadUrl = `${vcs_url}/archive/${vcs_revision}.zip`;
 
-  if (GITHUB_OAUTH_TOKEN) {
-    exec(`curl -L -u "${GITHUB_OAUTH_TOKEN}:x-oauth-basic" ${downloadUrl} -o ${revisionDir}/${vcs_revision}`);
-  } else {
-    exec(`curl -L -u -o ${revisionDir}/${vcs_revision}  ${downloadUrl} -o ${revisionDir}/${vcs_revision}`);
+  const downloadReady = (GITHUB_OAUTH_TOKEN)
+    ? exec(`curl -# -L -o ${revisionDir}/${vcs_revision} ${downloadUrl}`).code;
+    : exec(`curl -# -L -u ${GITHUB_OAUTH_TOKEN}:x-oauth-basic -o ${revisionDir}/${vcs_revision} ${downloadUrl}`).code;
+
+  if (downloadReady !== 0) {
+    echo('Problem with downloading files');
+    exit(1);
   }
 
-  exec(`unzip ${revisionDir}/${vcs_revision}`);
+  exec(`unzip ${revisionDir}/${vcs_revision} -d ${revisionDir}/${vcs_revision}`);
 
   exec(`${BUILD_DIR}/${vcs_revision}/scripts/build docker:earth`, (code, stdout, stderr) => {
     console.log('Exit code:', code);
