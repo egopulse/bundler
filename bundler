@@ -31,7 +31,7 @@ require('./readInput')(json => {
     exit(1);
   }
 
-  exec(`unzip ${revisionDir}/${vcs_revision}.zip -d ${revisionDir}/${vcs_revision}`);
+  exec(`unzip ${revisionDir}/${vcs_revision}.zip -d ${revisionDir}`);
 
   exec(`${BUILD_DIR}/${vcs_revision}/pulse-${vcs_revision}/scripts/build docker:earth`, (code, stdout, stderr) => {
     echo(`Exit code: ${code}`).toEnd(logFile);
