@@ -13,7 +13,7 @@ if (!which('docker') || !which('java') || !which('curl') || !which('unzip')) {
 }
 
 require('./readInput')(json => {
-  const {vcs_url, vcs_revision, branch, build_num, subject} = json;
+  const {vcs_url, vcs_revision, build_num, subject} = json;
   const shortCommit = vcs_revision.substring(0, 5);
   const revisionDir = `${BUILD_DIR}/${build_num}`;
   rm('-rf', revisionDir);
@@ -31,8 +31,6 @@ require('./readInput')(json => {
   }
 
   exec(`unzip ${revisionDir}/${vcs_revision}.zip -d ${revisionDir}`);
-
-  const effectiveBuildName = branch === 'master' ? build_num : branch;
 
   exec(`${revisionDir}/pulse-${vcs_revision}/scripts/autoBuild ${effectiveBuildName} ${shortCommit} ${subject}`);
   exec(`rm -rf ${revisionDir}`);
