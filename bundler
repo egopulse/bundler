@@ -32,6 +32,6 @@ require('./readInput')(json => {
 
   exec(`unzip ${revisionDir}/${vcs_revision}.zip -d ${revisionDir}`);
 
-  exec(`${revisionDir}/pulse-${vcs_revision}/scripts/autoBuild ${effectiveBuildName} ${shortCommit} ${subject}`);
+  exec(`${revisionDir}/pulse-${vcs_revision}/scripts/autoBuild ${build_num} ${shortCommit} ${subject}`);
   exec(`rm -rf ${revisionDir}`);
 });
